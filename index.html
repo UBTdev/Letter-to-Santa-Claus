@@ -2,774 +2,1000 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
-    <title>Письмо Деду Морозу - Конкурс</title>
-
-    <!-- Шрифты по CDN -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;500&display=swap"
-        rel="stylesheet">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #0a0a1a;
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(15, 15, 40, 0.8) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(30, 30, 70, 0.6) 0%, transparent 20%);
-            color: #e0e0ff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Бесконечные снежинки на заднем фоне */
-        .background-snowflakes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .background-snowflake {
-            position: absolute;
-            top: -50px;
-            color: rgba(200, 220, 255, 0.4);
-            font-size: 16px;
-            pointer-events: none;
-            z-index: 1;
-            text-shadow: 0 0 5px rgba(180, 220, 255, 0.3);
-            opacity: 0;
-            will-change: transform, opacity;
-            transform: translateZ(0);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 950px;
-            position: relative;
-            z-index: 10;
-            padding: 0 10px;
-        }
-
-        /* Конверт - адаптивный */
-        .envelope {
-            width: 100%;
-            max-width: 850px;
-            height: 450px;
-            margin: 0 auto 40px;
-            position: relative;
-            perspective: 1000px;
-            cursor: pointer;
-            transition: transform 1.5s ease;
-        }
-
-        @media (max-width: 768px) {
-            .envelope {
-                height: 350px;
-                margin-bottom: 30px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .envelope {
-                height: 280px;
-            }
-        }
-
-        .envelope-front {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #2a2a5a, #1a1a3a);
-            border-radius: 10px;
-            position: relative;
-            z-index: 2;
-            box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.5),
-                inset 0 0 30px rgba(120, 120, 255, 0.1);
-            border: 1px solid rgba(100, 100, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        /* Клапан конверта */
-        .envelope-flap {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(to bottom right, #3a3a7a, #2a2a5a);
-            clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
-            transform-origin: top;
-            transition: transform 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            z-index: 3;
-            border-radius: 10px 10px 0 0;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(100, 100, 255, 0.2);
-            border-bottom: none;
-        }
-
-        /* Тень под клапаном для реалистичности */
-        .envelope-flap::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
-            z-index: 1;
-        }
-
-        /* Теперь двигаем весь конверт вверх при открытии */
-        .envelope.open {
-            transform: translateY(-40px);
-        }
-
-        @media (max-width: 768px) {
-            .envelope.open {
-                transform: translateY(-30px);
-            }
-        }
-
-        .envelope.open .envelope-flap {
-            transform: rotateX(-180deg);
-        }
-
-        .stamp {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 60px;
-            height: 80px;
-            background: linear-gradient(45deg, #ff3366, #ff6699);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Dancing Script', cursive;
-            font-weight: bold;
-            font-size: 16px;
-            color: white;
-            transform: rotate(10deg);
-            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
-            z-index: 4;
-        }
-
-        @media (max-width: 768px) {
-            .stamp {
-                width: 50px;
-                height: 65px;
-                font-size: 14px;
-                top: 10px;
-                right: 10px;
-            }
-        }
-
-        .instruction {
-            position: absolute;
-            bottom: 15px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            color: #aaaaff;
-            opacity: 0.8;
-            z-index: 5;
-            padding: 0 15px;
-        }
-
-        @media (max-width: 768px) {
-            .instruction {
-                font-size: 14px;
-                bottom: 10px;
-            }
-        }
-
-        /* Письмо с эффектом стекла - адаптивное */
-        .letter {
-            width: 95%;
-            max-width: 750px;
-            min-height: 550px;
-            margin: -350px auto 80px;
-            position: relative;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.5),
-                inset 0 0 60px rgba(120, 120, 255, 0.1);
-            padding: 35px;
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 1.2s ease 0.5s;
-            z-index: 11;
-            overflow: hidden;
-        }
-
-        @media (max-width: 768px) {
-            .letter {
-                padding: 25px;
-                margin: -300px auto 60px;
-                min-height: auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .letter {
-                padding: 20px;
-                margin: -250px auto 50px;
-                border-radius: 10px;
-            }
-        }
-
-        .letter::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent),
-                radial-gradient(circle at 30% 30%, rgba(120, 120, 255, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 70% 70%, rgba(255, 100, 255, 0.03) 0%, transparent 50%);
-            z-index: -1;
-            border-radius: 12px;
-        }
-
-        .envelope.open+.letter {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Яркие снежинки при открытии */
-        .snowflakes-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 20;
-        }
-
-        .snowflake {
-            position: absolute;
-            top: -50px;
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 22px;
-            pointer-events: none;
-            z-index: 20;
-            opacity: 0;
-            text-shadow:
-                0 0 10px rgba(255, 255, 255, 0.9),
-                0 0 20px rgba(180, 220, 255, 0.7);
-            filter: drop-shadow(0 0 5px rgba(100, 150, 255, 0.6));
-            will-change: transform, opacity;
-            transform: translateZ(0);
-        }
-
-        @media (max-width: 768px) {
-            .snowflake {
-                font-size: 18px;
-            }
-        }
-
-        /* Неоновый текст */
-        .neon-text {
-            margin-top: 60px;
-            color: #ffffff;
-            text-shadow:
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px #7a7aff,
-                0 0 30px #7a7aff,
-                0 0 40px #7a7aff;
-            animation: neon-pulse 3s infinite alternate;
-        }
-
-        @keyframes neon-pulse {
-            from {
-                text-shadow:
-                    0 0 5px #fff,
-                    0 0 10px #fff,
-                    0 0 20px #7a7aff,
-                    0 0 30px #7a7aff,
-                    0 0 40px #7a7aff;
-            }
-
-            to {
-                text-shadow:
-                    0 0 7px #fff,
-                    0 0 12px #fff,
-                    0 0 25px #7a7aff,
-                    0 0 35px #7a7aff,
-                    0 0 45px #7a7aff;
-            }
-        }
-
-        /* Заголовок письма - адаптивный */
-        .letter-header {
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .letter-header h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 42px;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-
-        .letter-header h2 {
-            font-size: 24px;
-            font-weight: 400;
-            color: #aaaaff;
-        }
-
-        @media (max-width: 768px) {
-            .letter-header {
-                margin-bottom: 20px;
-            }
-
-            .letter-header h1 {
-                font-size: 36px;
-                margin-bottom: 6px;
-            }
-
-            .letter-header h2 {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .letter-header h1 {
-                font-size: 30px;
-            }
-
-            .letter-header h2 {
-                font-size: 18px;
-            }
-        }
-
-        /* Основное содержимое письма - адаптивное */
-        .letter-content {
-            font-size: 17px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        @media (max-width: 768px) {
-            .letter-content {
-                font-size: 16px;
-                line-height: 1.5;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .letter-content {
-                font-size: 15px;
-            }
-        }
-
-        .letter-content p {
-            margin-bottom: 15px;
-        }
-
-        /* Табличная верстка для желаний и обещаний - АДАПТИВНАЯ */
-        .table-container {
-            display: table;
-            width: 100%;
-            margin: 25px 0;
-            border-collapse: separate;
-            border-spacing: 0 12px;
-        }
-
-        @media (max-width: 768px) {
-            .table-container {
-                display: block;
-                border-spacing: 0;
-                margin: 20px 0;
-            }
-        }
-
-        .table-row {
-            display: table-row;
-        }
-
-        @media (max-width: 768px) {
-            .table-row {
-                display: block;
-                margin-bottom: 15px;
-                width: 100%;
-            }
-        }
-
-        .table-cell {
-            display: table-cell;
-            padding: 12px 15px;
-            vertical-align: top;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .table-cell {
-                display: block;
-                width: 100% !important;
-                padding: 12px;
-                margin-bottom: 0;
-                border-radius: 8px !important;
-            }
-        }
-
-        .table-cell:first-child {
-            width: 38%;
-            border-right: none;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-            font-weight: 500;
-            /* color: #aaaaff; */
-            font-size: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .table-cell:first-child {
-                border-right: 1px solid rgba(255, 255, 255, 0.1);
-                border-bottom: none;
-                border-bottom-left-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-                margin-bottom: 0;
-                font-size: 17px;
-                padding-bottom: 10px;
-            }
-        }
-
-        .table-cell:last-child {
-            border-left: none;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        @media (max-width: 768px) {
-            .table-cell:last-child {
-                border-left: 1px solid rgba(255, 255, 255, 0.1);
-                border-top: none;
-                border-top-left-radius: 0 !important;
-                border-top-right-radius: 0 !important;
-                margin-top: -1px;
-            }
-        }
-
-        /* Список */
-        ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        li {
-            margin-bottom: 8px;
-            position: relative;
-            padding-left: 22px;
-            font-size: 16px;
-        }
-
-        @media (max-width: 768px) {
-            li {
-                font-size: 15px;
-                margin-bottom: 6px;
-                padding-left: 20px;
-            }
-            .neon-text {
-                text-align: center;
-            }
-        }
-
-        li:before {
-            content: '❄️';
-            position: absolute;
-            left: 0;
-            top: 1px;
-            font-size: 12px;
-        }
-
-        /* Подпись */
-        .signature {
-            text-align: right;
-            margin-top: 35px;
-            font-family: 'Dancing Script', cursive;
-            font-size: 32px;
-            color: #aaaaff;
-        }
-
-        @media (max-width: 768px) {
-            .signature {
-                margin-top: 25px;
-                font-size: 28px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .signature {
-                font-size: 24px;
-            }
-        }
-
-        /* Кнопка для повторной анимации */
-        .reset-button {
-            margin: 25px auto;
-            display: block;
-            padding: 10px 22px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #aaaaff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 15px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 12;
-            position: relative;
-        }
-
-        @media (max-width: 768px) {
-            .reset-button {
-                margin: 20px auto;
-                padding: 9px 20px;
-                font-size: 14px;
-            }
-        }
-
-        .reset-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Футер */
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #6666aa;
-            font-size: 13px;
-            padding: 15px;
-            width: 100%;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            z-index: 12;
-        }
-
-        @media (max-width: 768px) {
-            footer {
-                font-size: 12px;
-                padding: 12px;
-            }
-        }
-
-        /* Адаптивность для снежинок */
-        @media (max-width: 768px) {
-            .background-snowflake {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .background-snowflake {
-                font-size: 12px;
-            }
-
-            .snowflake {
-                font-size: 16px;
-            }
-        }
-
-        .Higlight-simbol {
-            font-size: 26px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
+  <title>Письмо Деду Морозу - Конкурс</title>
+
+  <!-- Шрифты по CDN -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #0a0a1a;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(15, 15, 40, 0.8) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(30, 30, 70, 0.6) 0%, transparent 20%);
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: table;
+      width: 100%;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Бесконечные снежинки на заднем фоне */
+    .background-snowflakes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .background-snowflake {
+      position: absolute;
+      top: -50px;
+      color: rgba(200, 220, 255, 0.4);
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 1;
+      text-shadow: 0 0 5px rgba(180, 220, 255, 0.3);
+      opacity: 0;
+      will-change: transform, opacity;
+      transform: translateZ(0);
+    }
+
+    table.container {
+      width: 100%;
+      max-width: 950px;
+      position: relative;
+      z-index: 10;
+      padding: 15px;
+      margin: 0 auto;
+      border-spacing: 0;
+      border-collapse: collapse;
+      margin-top: 80px;
+    }
+
+    /* Конверт - адаптивный */
+    .envelope {
+      width: 100%;
+      max-width: 850px;
+      height: 450px;
+      margin: 0 auto 40px;
+      position: relative;
+      perspective: 1000px;
+      cursor: pointer;
+      transition: transform 1.5s ease;
+    }
+
+    @media (max-width: 768px) {
+      .envelope {
+        height: 350px;
+        margin-bottom: 30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .envelope {
+        height: 280px;
+      }
+    }
+
+    .envelope-front {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #2a2a5a, #1a1a3a);
+      /* border-radius: 10px; */
+      position: relative;
+      z-index: 2;
+      box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.5),
+        inset 0 0 30px rgba(120, 120, 255, 0.1);
+      border: 1px solid rgba(100, 100, 255, 0.2);
+      display: table;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* Клапан конверта */
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(to bottom right, #3a3a7a, #2a2a5a);
+      clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+      transform-origin: top;
+      transition: transform 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      z-index: 3;
+      /* border-radius: 10px 10px 0 0; */
+      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(100, 100, 255, 0.2);
+      border-bottom: none;
+    }
+
+    /* Тень под клапаном для реалистичности */
+    .envelope-flap::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+      z-index: 1;
+    }
+
+    /* Теперь двигаем весь конверт вверх при открытии */
+    .envelope.open {
+      transform: translateY(-40px);
+    }
+
+    @media (max-width: 768px) {
+      .envelope.open {
+        transform: translateY(-30px);
+      }
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(-180deg);
+    }
+
+    .stamp span {
+
+    }
+
+    .stamp {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 60px;
+      height: 80px;
+      background: linear-gradient(45deg, #ff3366, #ff6699);
+      border-radius: 8px;
+      display: table-cell;
+      vertical-align: middle;
+      font-family: 'Dancing Script', cursive;
+      font-weight: bold;
+      font-size: 16px;
+      color: white;
+      transform: rotate(10deg);
+      box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+      z-index: 4;
+      align-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .stamp {
+        width: 50px;
+        height: 65px;
+        font-size: 14px;
+        top: 10px;
+        right: 10px;
+      }
+      .neon-text.heading-letter-to {
+        margin-top: 140px;
+        font-size: 18px;
+      }
+    }
+
+    .instruction {
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 16px;
+      color: #aaaaff;
+      opacity: 0.8;
+      z-index: 5;
+      padding: 0 15px;
+      display: table-cell;
+      vertical-align: bottom;
+    }
+
+    @media (max-width: 768px) {
+      .instruction {
+        font-size: 14px;
+        bottom: 10px;
+      }
+    }
+
+    /* Письмо с эффектом стекла - адаптивное и табличное */
+    table.letter {
+      width: 95%;
+      max-width: 750px;
+      min-height: 550px;
+      margin: -350px auto 80px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        inset 0 0 60px rgba(120, 120, 255, 0.1);
+      padding: 35px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 1.2s ease 0.5s;
+      z-index: 11;
+      overflow: hidden;
+      border-spacing: 0;
+      border-collapse: separate;
+    }
+
+    @media (max-width: 768px) {
+      table.letter {
+        padding: 25px;
+        margin: -300px auto 60px;
+        min-height: auto;
+        display: block;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table.letter {
+        padding: 20px;
+        margin: -250px auto 50px;
+        border-radius: 10px;
+      }
+    }
+
+    table.letter::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent),
+        radial-gradient(circle at 30% 30%, rgba(120, 120, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(255, 100, 255, 0.03) 0%, transparent 50%);
+      z-index: -1;
+      border-radius: 12px;
+    }
+
+    /* Исправленный селектор для письма */
+    .envelope.open+tr td table.letter {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Яркие снежинки при открытии */
+    .snowflakes-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .snowflake {
+      position: absolute;
+      top: -50px;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 22px;
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      text-shadow:
+        0 0 10px rgba(255, 255, 255, 0.9),
+        0 0 20px rgba(180, 220, 255, 0.7);
+      filter: drop-shadow(0 0 5px rgba(100, 150, 255, 0.6));
+      will-change: transform, opacity;
+      transform: translateZ(0);
+    }
+
+    @media (max-width: 768px) {
+      .snowflake {
+        font-size: 18px;
+      }
+    }
+
+    /* Неоновый текст */
+    .neon-text {
+      /* margin-top: 60px; */
+      color: #ffffff;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px #7a7aff,
+        0 0 30px #7a7aff,
+        0 0 40px #7a7aff;
+      animation: neon-pulse 3s infinite alternate;
+    }
+
+    @keyframes neon-pulse {
+      from {
+        text-shadow:
+          0 0 5px #fff,
+          0 0 10px #fff,
+          0 0 20px #7a7aff,
+          0 0 30px #7a7aff,
+          0 0 40px #7a7aff;
+      }
+
+      to {
+        text-shadow:
+          0 0 7px #fff,
+          0 0 12px #fff,
+          0 0 25px #7a7aff,
+          0 0 35px #7a7aff,
+          0 0 45px #7a7aff;
+      }
+    }
+
+    /* Заголовок письма - адаптивный и табличный */
+    .letter-header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      display: table;
+      width: 100%;
+    }
+
+    .letter-header td {
+      vertical-align: middle;
+      padding: 10px 0;
+    }
+
+    .letter-header h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 42px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .letter-header h2 {
+      font-size: 24px;
+      font-weight: 400;
+      color: #aaaaff;
+    }
+
+    @media (max-width: 768px) {
+      .letter-header {
+        margin-bottom: 20px;
+        display: block;
+      }
+
+      .letter-header td {
+        display: block;
+        padding: 5px 0;
+      }
+
+      .letter-header h1 {
+        font-size: 36px;
+        margin-bottom: 6px;
+      }
+
+      .letter-header h2 {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .letter-header h1 {
+        font-size: 30px;
+      }
+
+      .letter-header h2 {
+        font-size: 18px;
+      }
+    }
+
+    /* Основное содержимое письма - адаптивное и табличное */
+    .letter-content {
+      font-size: 17px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .text-content-cell,
+    .text-content td {
+      font-size: 17px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .wishes-promises ul li {
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .letter-content {
+        font-size: 16px;
+        line-height: 1.5;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .letter-content {
+        font-size: 15px;
+      }
+    }
+
+    .letter-content p {
+      margin-bottom: 15px;
+    }
+
+    /* Табличная верстка для желаний и обещаний - ПОЛНОСТЬЮ HTML ТАБЛИЦА */
+    table.wishes-promises {
+      width: 100%;
+      margin: 25px 0;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+    }
+
+    @media (max-width: 768px) {
+      table.wishes-promises {
+        display: block;
+        border-spacing: 0;
+        margin: 20px 0;
+      }
+    }
+
+    table.wishes-promises tr {
+      display: table-row;
+    }
+
+    @media (max-width: 768px) {
+      table.wishes-promises tr {
+        display: block;
+        margin-bottom: 15px;
+        width: 100%;
+      }
+    }
+
+    table.wishes-promises td {
+      padding: 12px 15px;
+      vertical-align: top;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      table.wishes-promises td {
+        display: block;
+        width: 100% !important;
+        padding: 12px;
+        margin-bottom: 0;
+      }
+    }
+
+    table.wishes-promises td:first-child {
+      width: 38%;
+      border-right: none;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+      font-weight: 500;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      table.wishes-promises td:first-child {
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        margin-bottom: 0;
+        font-size: 17px;
+        padding-bottom: 10px;
+        text-align: center;
+        border-radius: 8px 8px 0 0 !important;
+      }
+    }
+
+    table.wishes-promises td:last-child {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+      table.wishes-promises td:last-child {
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: none;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        margin-top: -1px;
+        border-radius: 0 0 8px 8px !important;
+      }
+    }
+
+    /* Список с табличной версткой */
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 22px;
+      font-size: 16px;
+    }
+
+    li:before {
+      content: '❄️';
+      position: absolute;
+      left: 0;
+      top: 1px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      li {
+        font-size: 15px;
+        margin-bottom: 6px;
+        padding-left: 20px;
+      }
+
+      .neon-text {
+        /* text-align: center; */
+      }
+    }
+
+    /* Подпись с табличной версткой */
+    table.signature {
+      text-align: right;
+      margin-top: 35px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 32px;
+      color: #aaaaff;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table.signature td {
+      vertical-align: middle;
+      text-align: right;
+      padding: 5px 0;
+    }
+
+    @media (max-width: 768px) {
+      table.signature {
+        margin-top: 25px;
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table.signature {
+        font-size: 24px;
+      }
+    }
+
+    /* Кнопка для повторной анимации с табличной версткой */
+    table.button-container {
+      width: 100%;
+      margin: 25px auto;
+      border-collapse: collapse;
+    }
+
+    table.button-container td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 10px 0;
+    }
+
+    .reset-button {
+      padding: 10px 22px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #aaaaff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 12;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      table.button-container {
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+      }
+
+      table.button-container td {
+        display: block;
+        padding: 5px 0;
+      }
+
+      .reset-button {
+        padding: 9px 20px;
+        font-size: 14px;
+      }
+    }
+
+    .reset-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Футер с табличной версткой */
+    table.footer {
+      margin-top: 20px;
+      text-align: center;
+      color: #6666aa;
+      font-size: 13px;
+      padding: 15px;
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 12;
+      border-collapse: collapse;
+    }
+
+    table.footer td {
+      padding: 15px;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      table.footer {
+        font-size: 12px;
+        padding: 12px;
+      }
+
+      table.footer td {
+        padding: 12px;
+        display: block;
+      }
+    }
+
+    /* Адаптивность для снежинок */
+    @media (max-width: 768px) {
+      .background-snowflake {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .background-snowflake {
+        font-size: 12px;
+      }
+
+      .snowflake {
+        font-size: 16px;
+      }
+    }
+
+    .Higlight-simbol {
+      font-size: 26px;
+    }
+
+    table.text-content {
+      width: 100%;
+      margin-bottom: 15px;
+      border-collapse: collapse;
+    }
+
+    table.text-content td {
+      vertical-align: top;
+      padding-bottom: 15px;
+    }
+
+    .text-content-cell {
+      padding-left: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .Higlight-simbol {
+        display: inline-block;
+        padding-right: 5px;
+      }
+
+      table.text-content {
+        display: block;
+      }
+
+      table.text-content td {
+        display: block;
+        padding: 5px 0;
+      }
+
+      .text-content-cell {
+        padding-left: 0;
+      }
+    }
+
+    /* Клеточка для конверта */
+    td.envelope-cell {
+      padding: 0 0 40px 0;
+      text-align: center;
+    }
+
+    /* Клеточка для письма */
+    td.letter-cell {
+      padding: 0;
+      text-align: center;
+    }
+
+    /* Клеточка для кнопки */
+    td.button-cell {
+      padding: 0;
+    }
+
+    /* Клеточка для футера */
+    td.footer-cell {
+      padding: 0;
+    }
+
+    .heading-letter-to {
+      margin-top: 280px;
+    }
+  </style>
 </head>
 
 <body>
-    <!-- Бесконечные снежинки на заднем фоне -->
-    <div class="background-snowflakes" id="backgroundSnowflakes"></div>
+  <!-- Бесконечные снежинки на заднем фоне -->
+  <div class="background-snowflakes" id="backgroundSnowflakes"></div>
 
-    <!-- Контейнер для ярких снежинок при открытии -->
-    <div class="snowflakes-container" id="snowflakesContainer"></div>
+  <!-- Контейнер для ярких снежинок при открытии -->
+  <div class="snowflakes-container" id="snowflakesContainer"></div>
 
-    <div class="container">
+  <table class="container">
+    <tr>
+      <td class="envelope-cell">
         <div class="envelope" id="envelope">
-            <div class="envelope-flap"></div>
-            <div class="envelope-front">
-                <div class="stamp">2026</div>
-                <h2 class="neon-text">Дорогому Дедушке Морозу</h2>
-                <p class="instruction">Из Ставрополя в Великий Устюг</p>
-            </div>
+          <div class="envelope-flap"></div>
+          <div class="envelope-front">
+            <div class="stamp"><span>2026</span></div>
+            <h2 class="neon-text heading-letter-to">Дорогому Дедушке Морозу</h2>
+            <p class="instruction">Из Ставрополя в Великий Устюг</p>
+          </div>
         </div>
+      </td>
+    </tr>
 
-        <div class="letter" id="letter">
-            <div class="letter-header">
-                <h1 class="neon-text">С Новым 2026 Годом!</h1>
-                <h2>Дорогой Дедушка Мороз!</h2>
-            </div>
+    <tr>
+      <td class="letter-cell">
+        <table class="letter" id="letter">
+          <thead>
+            <tr>
+              <td colspan="2">
+                <table class="letter-header">
+                  <tr>
+                    <td>
+                      <h1 class="neon-text">С Новым 2026 Годом!</h1>
+                      <h2>Дорогой Дедушка Мороз!</h2>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </thead>
 
-            <div class="letter-content">
-                <p>
-                    <span class="Higlight-simbol">М</span>еня зовут Миша, пишу это письмо, на удивление, с новогодним
-                    настроением. 2025-й был насыщенным для меня, непохожим на другие. В этом году я старался прилежно
-                    учиться, сделал много заказов, нашёл много хороших друзей и даже поучаствовал в настоящей битве за
-                    макбук, где смог составить конкуренцию и выиграл знания, которые помогут заработать на 100 таких же!
-                    Также старался помогать родителям и близким.
-                </p>
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <table class="text-content">
+                  <tr>
+                    <td class="text-content-cell">
+                      <span class="Higlight-simbol">М</span>еня зовут Миша, пишу это письмо, на удивление, с новогодним
+                      настроением. 2025-й был насыщенным для меня, непохожим на другие. В этом году я старался прилежно
+                      учиться, сделал много заказов, нашёл много хороших друзей и даже поучаствовал в настоящей битве за
+                      макбук, где смог составить конкуренцию и выиграл знания, которые помогут заработать на 100 таких
+                      же!
+                      Также старался помогать родителям и близким.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-                <div class="table-container">
-                    <div class="table-row">
-                        <div class="table-cell neon-text">Желаю себе в <br> новом году:</div>
-                        <div class="table-cell">
-                            <ul>
-                                <li>Найти больше крутых проектов для реализации</li>
-                                <li>Грамотно выстроить рабочий процесс</li>
-                                <li>Больше новых и интересных знакомств</li>
-                                <li>Усердия и более высокого КПД в труде</li>
-                            </ul>
-                        </div>
-                    </div>
+            <tr>
+              <td colspan="2">
+                <table class="wishes-promises">
+                  <tbody>
+                    <tr>
+                      <td class="neon-text">Желаю себе в <br> новом году:</td>
+                      <td>
+                        <ul>
+                          <li>Найти больше крутых проектов для реализации</li>
+                          <li>Грамотно выстроить рабочий процесс</li>
+                          <li>Больше новых и интересных знакомств</li>
+                          <li>Усердия и более высокого КПД в труде</li>
+                        </ul>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="neon-text">Обещаю:</td>
+                      <td>
+                        <ul>
+                          <li>Продолжать учиться новому</li>
+                          <li>Победить жабу и купить макбук</li>
+                          <li>Начать брать заказы на Laravel</li>
+                          <li>Меньше сомневаться и больше делать</li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
 
-                    <div class="table-row">
-                        <div class="table-cell neon-text">Обещаю:</div>
-                        <div class="table-cell">
-                            <ul>
-                                <li>Продолжать учиться новому</li>
-                                <li>Победить жабу и купить макбук</li>
-                                <li>Начать брать заказы на Laravel</li>
-                                <li>Меньше сомневаться и больше делать</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            <tr>
+              <td colspan="2">
+                <table class="text-content">
+                  <tr>
+                    <td colspan="2">
+                      Дедушка Мороз, я верю, что Новый 2026 год принесёт много радости, новых свершений и волшебства.
+                      Такой отдачи я не видел ни в одной школе.
+                      Спасибо за то, что каждый год даришь нам надежду и веру в чудеса!
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
 
+          <tfoot>
+            <tr>
+              <td colspan="2">
+                <table class="signature">
+                  <tr>
+                    <td>
+                      <p>С верой в чудо,</p>
+                      <p class="neon-text">Khrushchev ❄</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </td>
+    </tr>
 
-                <p>
-                    Дедушка Мороз, я верю, что Новый 2026 год принесёт много радости, новых свершений и волшебства.
-                    Такой отдачи я не видел ни в одной школе.
-                    Спасибо за то, что каждый год даришь нам надежду и веру в чудеса!
-                </p>
-            </div>
+    <tr>
+      <td class="button-cell">
+        <table class="button-container">
+          <tr>
+            <td>
+              <button class="reset-button" id="resetBtn">Снова запустить снежинки</button>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 
-            <div class="signature">
-                <p>С верой в чудо,</p>
-                <p class="neon-text">Khrushchev ❄</p>
-            </div>
-        </div>
-
-        <button class="reset-button" id="resetBtn">Снова запустить снежинки</button>
-    </div>
-
-    <footer>
+  <table class="footer">
+    <tr>
+      <td class="footer-cell">
         <p>Письмо Деду Морозу на розыгрыш | 2025 - 2026</p>
-    </footer>
+      </td>
+    </tr>
+  </table>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const envelope = document.getElementById('envelope');
-            const letter = document.getElementById('letter');
-            const resetBtn = document.getElementById('resetBtn');
-            const backgroundSnowflakes = document.getElementById('backgroundSnowflakes');
-            const snowflakesContainer = document.getElementById('snowflakesContainer');
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const envelope = document.getElementById('envelope');
+      const letter = document.getElementById('letter');
+      const resetBtn = document.getElementById('resetBtn');
+      const backgroundSnowflakes = document.getElementById('backgroundSnowflakes');
+      const snowflakesContainer = document.getElementById('snowflakesContainer');
 
-            // Создаем стили для анимаций снежинок
-            const styleElement = document.createElement('style');
-            document.head.appendChild(styleElement);
+      // Создаем стили для анимаций снежинок
+      const styleElement = document.createElement('style');
+      document.head.appendChild(styleElement);
 
-            // Инициализация бесконечных фоновых снежинок
-            initBackgroundSnowflakes();
+      // Инициализация бесконечных фоновых снежинок
+      initBackgroundSnowflakes();
 
-            // Анимация открытия конверта при клике
-            envelope.addEventListener('click', function () {
-                if (!envelope.classList.contains('open')) {
-                    envelope.classList.add('open');
-                    createOpeningSnowflakes();
-                }
-            });
+      // Анимация открытия конверта при клике
+      envelope.addEventListener('click', function () {
+        if (!envelope.classList.contains('open')) {
+          envelope.classList.add('open');
+          createOpeningSnowflakes();
 
-            // Кнопка сброса анимации
-            resetBtn.addEventListener('click', function () {
-                envelope.classList.remove('open');
+          // Показываем письмо через JavaScript
+          setTimeout(() => {
+            letter.style.opacity = '1';
+            letter.style.transform = 'translateY(0)';
+          }, 500);
+        }
+      });
 
-                // Через некоторое время снова открываем конверт
-                setTimeout(() => {
-                    envelope.classList.add('open');
-                    createOpeningSnowflakes();
-                }, 300);
-            });
+      // Кнопка сброса анимации
+      resetBtn.addEventListener('click', function () {
+        envelope.classList.remove('open');
+        letter.style.opacity = '0';
+        letter.style.transform = 'translateY(40px)';
 
-            // Автоматическое открытие конверта через 1 секунду после загрузки
-            setTimeout(() => {
-                envelope.classList.add('open');
-                createOpeningSnowflakes();
-            }, 1000);
+        // Через некоторое время снова открываем конверт
+        setTimeout(() => {
+          envelope.classList.add('open');
+          createOpeningSnowflakes();
 
-            // Создание бесконечных фоновых снежинок
-            function initBackgroundSnowflakes() {
-                // Создаем 35 фоновых снежинок сразу
-                for (let i = 0; i < 35; i++) {
-                    createBackgroundSnowflake(i * 500);
-                }
+          setTimeout(() => {
+            letter.style.opacity = '1';
+            letter.style.transform = 'translateY(0)';
+          }, 500);
+        }, 300);
+      });
 
-                // Добавляем новые снежинки каждые 500мс
-                setInterval(() => {
-                    createBackgroundSnowflake(0);
-                }, 500);
-            }
+      // Автоматическое открытие конверта через 1 секунду после загрузки
+      setTimeout(() => {
+        envelope.classList.add('open');
+        createOpeningSnowflakes();
 
-            function createBackgroundSnowflake(delay = 0) {
-                const snowflake = document.createElement('div');
-                snowflake.classList.add('background-snowflake');
-                snowflake.innerHTML = '❄';
+        setTimeout(() => {
+          letter.style.opacity = '1';
+          letter.style.transform = 'translateY(0)';
+        }, 500);
+      }, 1000);
 
-                const startX = Math.random() * 100;
-                const drift = (Math.random() * 60 - 30);
-                const duration = 20 + Math.random() * 25;
-                const size = window.innerWidth < 768 ? 10 + Math.random() * 12 : 12 + Math.random() * 15;
-                const rotation = Math.random() * 720;
-                const opacity = 0.3 + Math.random() * 0.4;
+      // Создание бесконечных фоновых снежинок
+      function initBackgroundSnowflakes() {
+        // Создаем 35 фоновых снежинок сразу
+        for (let i = 0; i < 35; i++) {
+          createBackgroundSnowflake(i * 500);
+        }
 
-                // Устанавливаем стили
-                snowflake.style.left = `${startX}vw`;
-                snowflake.style.fontSize = `${size}px`;
-                snowflake.style.opacity = '0';
+        // Добавляем новые снежинки каждые 500мс
+        setInterval(() => {
+          createBackgroundSnowflake(0);
+        }, 500);
+      }
 
-                // Создаем уникальное имя для анимации
-                const animationName = `bgSnowflake${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+      function createBackgroundSnowflake(delay = 0) {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('background-snowflake');
+        snowflake.innerHTML = '❄';
 
-                // Добавляем CSS анимацию
-                const animationCSS = `
+        const startX = Math.random() * 100;
+        const drift = (Math.random() * 60 - 30);
+        const duration = 20 + Math.random() * 25;
+        const size = window.innerWidth < 768 ? 10 + Math.random() * 12 : 12 + Math.random() * 15;
+        const rotation = Math.random() * 720;
+        const opacity = 0.3 + Math.random() * 0.4;
+
+        // Устанавливаем стили
+        snowflake.style.left = `${startX}vw`;
+        snowflake.style.fontSize = `${size}px`;
+        snowflake.style.opacity = '0';
+
+        // Создаем уникальное имя для анимации
+        const animationName = `bgSnowflake${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+
+        // Добавляем CSS анимацию
+        const animationCSS = `
                     @keyframes ${animationName} {
                         0% {
                             transform: translate3d(0, -50px, 0) rotate(0deg);
@@ -788,56 +1014,56 @@
                     }
                 `;
 
-                // Добавляем стиль в DOM
-                styleElement.textContent += animationCSS;
+        // Добавляем стиль в DOM
+        styleElement.textContent += animationCSS;
 
-                // Применяем анимацию
-                snowflake.style.animation = `${animationName} ${duration}s linear ${delay}ms infinite`;
+        // Применяем анимацию
+        snowflake.style.animation = `${animationName} ${duration}s linear ${delay}ms infinite`;
 
-                backgroundSnowflakes.appendChild(snowflake);
-            }
+        backgroundSnowflakes.appendChild(snowflake);
+      }
 
-            // Создание ярких снежинок при открытии конверта
-            function createOpeningSnowflakes() {
-                // Очищаем старые снежинки
-                while (snowflakesContainer.firstChild) {
-                    snowflakesContainer.removeChild(snowflakesContainer.firstChild);
-                }
+      // Создание ярких снежинок при открытии конверта
+      function createOpeningSnowflakes() {
+        // Очищаем старые снежинки
+        while (snowflakesContainer.firstChild) {
+          snowflakesContainer.removeChild(snowflakesContainer.firstChild);
+        }
 
-                // Меньше снежинок на мобильных
-                const count = window.innerWidth < 768 ? 35 : 50;
+        // Меньше снежинок на мобильных
+        const count = window.innerWidth < 768 ? 35 : 50;
 
-                // Создаем яркие снежинки
-                for (let i = 0; i < count; i++) {
-                    setTimeout(() => {
-                        createBrightSnowflake(i);
-                    }, i * 30);
-                }
-            }
+        // Создаем яркие снежинки
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            createBrightSnowflake(i);
+          }, i * 30);
+        }
+      }
 
-            function createBrightSnowflake(index) {
-                const snowflake = document.createElement('div');
-                snowflake.classList.add('snowflake');
-                snowflake.innerHTML = '❄';
+      function createBrightSnowflake(index) {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
 
-                // Начинаем снежинки вокруг конверта
-                const startX = 45 + (Math.random() * 10 - 5);
-                const drift = (Math.random() * 80 - 40);
-                const duration = 2.5 + Math.random() * 2;
-                const delay = Math.random() * 0.3;
-                const size = window.innerWidth < 768 ? 15 + Math.random() * 22 : 18 + Math.random() * 30;
-                const rotation = Math.random() * 720;
+        // Начинаем снежинки вокруг конверта
+        const startX = 45 + (Math.random() * 10 - 5);
+        const drift = (Math.random() * 80 - 40);
+        const duration = 2.5 + Math.random() * 2;
+        const delay = Math.random() * 0.3;
+        const size = window.innerWidth < 768 ? 15 + Math.random() * 22 : 18 + Math.random() * 30;
+        const rotation = Math.random() * 720;
 
-                // Устанавливаем стили
-                snowflake.style.left = `${startX}vw`;
-                snowflake.style.fontSize = `${size}px`;
-                snowflake.style.opacity = '0';
+        // Устанавливаем стили
+        snowflake.style.left = `${startX}vw`;
+        snowflake.style.fontSize = `${size}px`;
+        snowflake.style.opacity = '0';
 
-                // Создаем уникальное имя для анимации
-                const animationName = `snowflake${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+        // Создаем уникальное имя для анимации
+        const animationName = `snowflake${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
 
-                // Добавляем CSS анимацию
-                const animationCSS = `
+        // Добавляем CSS анимацию
+        const animationCSS = `
                     @keyframes ${animationName} {
                         0% {
                             transform: translate3d(0, -50px, 0) rotate(0deg);
@@ -856,60 +1082,55 @@
                     }
                 `;
 
-                // Добавляем стиль в DOM
-                styleElement.textContent += animationCSS;
+        // Добавляем стиль в DOM
+        styleElement.textContent += animationCSS;
 
-                // Применяем анимацию
-                snowflake.style.animation = `${animationName} ${duration}s ease-in ${delay}s forwards`;
+        // Применяем анимацию
+        snowflake.style.animation = `${animationName} ${duration}s ease-in ${delay}s forwards`;
 
-                snowflakesContainer.appendChild(snowflake);
+        snowflakesContainer.appendChild(snowflake);
 
-                // Удаляем снежинку после анимации
-                setTimeout(() => {
-                    if (snowflake.parentNode === snowflakesContainer) {
-                        snowflakesContainer.removeChild(snowflake);
-                    }
-                }, (duration + delay + 0.5) * 1000);
-            }
+        // Удаляем снежинку после анимации
+        setTimeout(() => {
+          if (snowflake.parentNode === snowflakesContainer) {
+            snowflakesContainer.removeChild(snowflake);
+          }
+        }, (duration + delay + 0.5) * 1000);
+      }
 
-            // Анимация покачивания снежинок
-            let lastTime = 0;
-            function animateSnowflakes(currentTime) {
-                const deltaTime = currentTime - lastTime;
+      // Анимация покачивания снежинок
+      let lastTime = 0;
+      function animateSnowflakes(currentTime) {
+        const deltaTime = currentTime - lastTime;
 
-                if (deltaTime > 16) {
-                    lastTime = currentTime;
+        if (deltaTime > 16) {
+          lastTime = currentTime;
 
-                    // Покачивание для фоновых снежинок
-                    const bgSnowflakes = document.querySelectorAll('.background-snowflake');
-                    bgSnowflakes.forEach((flake, index) => {
-                        const sway = Math.sin(currentTime / 2000 + index) * 1.5;
-                        const currentTransform = flake.style.transform;
-                        const baseTransform = currentTransform.replace(/translateX\([^)]*\)/, '');
-                        flake.style.transform = `translateX(${sway}px) ${baseTransform}`;
-                    });
+          // Покачивание для фоновых снежинок
+          const bgSnowflakes = document.querySelectorAll('.background-snowflake');
+          bgSnowflakes.forEach((flake, index) => {
+            const sway = Math.sin(currentTime / 2000 + index) * 1.5;
+            const currentTransform = flake.style.transform;
+            const baseTransform = currentTransform.replace(/translateX\([^)]*\)/, '');
+            flake.style.transform = `translateX(${sway}px) ${baseTransform}`;
+          });
 
-                    // Покачивание для ярких снежинок
-                    const brightSnowflakes = document.querySelectorAll('.snowflake');
-                    brightSnowflakes.forEach((flake, index) => {
-                        const sway = Math.sin(currentTime / 1500 + index) * 2;
-                        const currentTransform = flake.style.transform;
-                        const baseTransform = currentTransform.replace(/translateX\([^)]*\)/, '');
-                        flake.style.transform = `translateX(${sway}px) ${baseTransform}`;
-                    });
-                }
+          // Покачивание для ярких снежинок
+          const brightSnowflakes = document.querySelectorAll('.snowflake');
+          brightSnowflakes.forEach((flake, index) => {
+            const sway = Math.sin(currentTime / 1500 + index) * 2;
+            const currentTransform = flake.style.transform;
+            const baseTransform = currentTransform.replace(/translateX\([^)]*\)/, '');
+            flake.style.transform = `translateX(${sway}px) ${baseTransform}`;
+          });
+        }
 
-                requestAnimationFrame(animateSnowflakes);
-            }
 
-            // Запускаем анимацию покачивания
-            requestAnimationFrame(animateSnowflakes);
-        });
-    </script>
+        requestAnimationFrame(animateSnowflakes);
+      }
+
+      // Запускаем анимацию покачивания
+      requestAnimationFrame(animateSnowflakes);
+    });
+  </script>
 </body>
-
-
-</html>
-
-
-
